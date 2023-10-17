@@ -17,8 +17,8 @@ class MarketDataProvider:
 
     def download_data(self):
         # download 1h timeframe btcusd historical data starting from 2020 Jan 1
-        download(exchange_names = self.exchange_name,
-            symbols= self.symbol,
+        download(exchange_names = [self.exchange_name],
+            symbols= [self.symbol],
             timeframe= self.timeframe,
             dir = self.data_directory,
             since = self.since,
@@ -30,11 +30,21 @@ class MarketDataProvider:
                     'feature_open',
                     'feature_high',
                     'feature_low',
-                    'feature_volume']
+                    'feature_volume',
+                    'close',
+                    'open',
+                    'high',
+                    'low',
+                    'volume']
         
         self.df = pd.read_pickle(self.filename)
-        self.df.rename(columns={'close': 'feature_close', 'open': 'feature_open', 'high': 'feature_high', 'low': 'feature_low', 'volume': 'feature_volume'}, inplace=True)
 
+        self.df['feature_open'] = self.df.open
+        self.df['feature_high'] = self.df.high
+        self.df['feature_low'] = self.df.low
+        self.df['feature_close'] = self.df.close
+        self.df['feature_volume'] = self.df.volume
+        
         if include_ichimoku_features:
             ichimoku_indicator = IchimokuIndicator(high=self.df.feature_high, low=self.df.feature_low)
             features.extend(['feature_senkou_a', 'feature_senkou_b', 'feature_kijun', 'feature_tenkan'])
@@ -59,12 +69,12 @@ class MarketDataProvider:
             self.df['feature_natural_market_mirror_nma'] = ocean_theory_indicator.natural_moving_average(self.df, 'feature_natural_market_mirror',20, True).values
             self.df['feature_natural_market_river_nma'] = ocean_theory_indicator.natural_moving_average(self.df, 'feature_natural_market_river',20, True).values
 
-            self.df['feature_natural_market_mirror_nma_diff'] = self.df.natural_market_mirror_nma.diff().values
-            self.df['feature_natural_market_river_nma_diff'] =  self.df.natural_market_river_nma.diff().values 
+            self.df['feature_natural_market_mirror_nma_diff'] = self.df.feature_natural_market_mirror_nma.diff().values
+            self.df['feature_natural_market_river_nma_diff'] =  self.df.feature_natural_market_river_nma.diff().values 
 
             scaler = StandardScaler()
             self.df[features] = scaler.fit_transform(self.df[features])
-            
+            self.df.dropna(inplace=True)
             return self.df
 
 
