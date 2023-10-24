@@ -14,8 +14,6 @@ from agent import TradingAgent
 
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
-
-mlflow.set_tracking_uri("azureml://westeurope.api.azureml.ms/mlflow/v1.0/subscriptions/b98e4480-8f42-4f17-ae4a-d9b2dd9df01a/resourceGroups/Personal/providers/Microsoft.MachineLearningServices/workspaces/Personal_WorkSpace")
 tf.get_logger().setLevel('INFO')
 
 data_provider = MarketDataProvider(exchange_name="binance", symbol="BTC/USDT", timeframe="1h", data_directory="data", since=datetime(year= 2020, month= 1, day=1))
