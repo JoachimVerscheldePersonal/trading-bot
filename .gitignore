@@ -1,1 +1,5 @@
-trading-bot-env/
+trading-env/
+__pycache__/
+render_logs
+mlruns/
+outputs/
